@@ -12,13 +12,6 @@ create table items (
 
 -- insert some test data
 -- Using a multi-row insert statement here
-insert into items (url, title, rating, content)
-values
-('www.amazon.com', 'amazon', 3, 'test'), 
-('www.thinkful.com', 'thinkful', 4, 'bootcamp'), 
-('www.gmail.com', 'email', 4, 'test'), 
-('www.yahoo.com', 'email2', 3, 'test'), 
-('www.ebay.com', 'ebay', 3, 'online shopping')
 
 
 -- TO EXECUTE FILE TO THIS 
