@@ -1,4 +1,5 @@
 const express = require("express");
+const xss = require("xss");
 const { v4: uuid } = require("uuid");
 const bookmarks = require("../store");
 const logger = require("../logger");
