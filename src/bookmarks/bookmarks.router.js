@@ -54,14 +54,15 @@ bookmarksRouter
       rating,
     };
 
-    bookmarks.push(newBookmark);
-
-    logger.info(`Bookmark with id ${id} created`);
-
-    res
-      .status(201)
-      .location(`http://localhost:8000/bookmark/${id}`)
-      .json({ id: id });
+    BookmarksService.insertBookmark(req.app.get("db"), newBookmark).then(
+      (bookmark) => {
+        logger.info(`Bookmark with id ${id} created`);
+        res
+          .status(201)
+          .location(`http://localhost:8000/bookmark/${id}`)
+          .json({ id: id });
+      }
+    );
   });
 
 bookmarksRouter
@@ -79,18 +80,14 @@ bookmarksRouter
       })
       .catch(next);
   })
-  .delete((req, res) => {
+  .delete((req, res, next) => {
     const { id } = req.params;
-    const bookmarkIndex = bookmarks.findIndex((b) => b.id === id);
-
-    if (bookmarkIndex === -1) {
-      logger.error(`Bookmark with id ${id} not found.`);
-      return res.status(404).send("Bookmark was not found");
-    }
-
-    bookmarks.splice(bookmarkIndex, 1);
-
-    res.status(201).end();
+    BookmarksService.deleteBookmark(req.app.get("db"), id)
+      .then((rows) => {
+        logger.error(`Bookmark with id ${id} not found.`);
+        return res.status(204).end();
+      })
+      .catch(next);
   });
 
 module.exports = bookmarksRouter;
