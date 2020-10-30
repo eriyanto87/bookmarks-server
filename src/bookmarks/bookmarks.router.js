@@ -9,12 +9,18 @@ const bookmarksRouter = express.Router();
 const bodyParser = express.json();
 
 bookmarksRouter
-  .route("/bookmark")
+  .route("/")
   .get((req, res, next) => {
     const knexInstance = req.app.get("db");
     BookmarksService.getAllBookmarks(knexInstance)
       .then((bookmarks) => {
-        res.send(bookmarks);
+        res.json({
+          id: bookmarks.id,
+          title: xss(bookmarks.title),
+          description: xss(bookmarks.description),
+          rating: xss(bookmarks.rating),
+          url: xss(bookmarks.url),
+        });
       })
       .catch(next);
   })
@@ -67,7 +73,7 @@ bookmarksRouter
   });
 
 bookmarksRouter
-  .route("/bookmark/:id")
+  .route("/:id")
   .get((req, res, next) => {
     const knexInstance = req.get.app("db");
     const { id } = req.params;
@@ -87,6 +93,30 @@ bookmarksRouter
       .then((rows) => {
         logger.error(`Bookmark with id ${id} not found.`);
         return res.status(204).end();
+      })
+      .catch(next);
+  })
+  .patch(bodyParser, (req, res, next) => {
+    const { title, url, description, rating } = req.body;
+    const bookmarkToUpdate = { title, url, description, rating };
+
+    const numOfValues = Object.values(bookmarkToUpdate).filter(Boolean).length;
+    if (numOfValues === 0) {
+      logger.error(`Invalid update without required fields`);
+      return res.status(400).json({
+        error: {
+          message: `Request body must content either 'title', 'url', 'description' or 'rating'`,
+        },
+      });
+    }
+
+    BookmarksService.updateBookmark(
+      req.app.get("db"),
+      req.params.id,
+      bookmarkToUpdate
+    )
+      .then((rows) => {
+        res.status(204).end();
       })
       .catch(next);
   });

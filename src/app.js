@@ -22,7 +22,7 @@ app.use(helmet());
 //   next();
 // });
 
-app.use(bookmarksRouter);
+app.use("/api/bookmark", bookmarksRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello From Bookmarks Server");
